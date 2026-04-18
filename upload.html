@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <title>마음 속 한마디</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Gaegu:wght@400;700&family=Gowun+Dodum&family=Hi+Melody&display=swap"
+        media="print" onload="this.media='all'">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { overflow: auto; min-height: 100vh; }
+    body {
+      background:
+        radial-gradient(ellipse at 20% 0%, #ffe4ec 0%, transparent 50%),
+        radial-gradient(ellipse at 100% 100%, #e0ecff 0%, transparent 50%),
+        linear-gradient(180deg, #fef7f0 0%, #f5ebe0 100%);
+      font-family: 'Gowun Dodum', 'Apple SD Gothic Neo', sans-serif;
+      padding: 30px 20px 60px;
+      color: #3a2a1a;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .upload-wrap { max-width: 440px; margin: 0 auto; }
+
+    .upload-header { text-align: center; margin-bottom: 30px; }
+    .upload-header h1 {
+      font-family: 'Nanum Pen Script', cursive;
+      font-size: 54px;
+      color: #e85a8a;
+      line-height: 1.1;
+      margin-bottom: 8px;
+      text-shadow: 2px 2px 0 rgba(232, 90, 138, 0.15);
+    }
+    .upload-header p { font-size: 15px; color: #7a6a5a; line-height: 1.5; }
+
+    .upload-card {
+      background: #fefaf2;
+      border-radius: 20px;
+      padding: 28px 24px;
+      box-shadow: 0 20px 50px rgba(180, 120, 100, 0.12), 0 4px 12px rgba(180, 120, 100, 0.08);
+    }
+
+    .field { margin-bottom: 22px; }
+    .field label {
+      display: block;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #4a3a2a;
+    }
+    .field input[type=text],
+    .field textarea {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid #f2e4c8;
+      border-radius: 12px;
+      font-size: 16px;
+      font-family: 'Gowun Dodum', sans-serif;
+      background: white;
+      color: #2a1a0a;
+      transition: border-color 0.15s;
+      resize: none;
+      display: block;
+    }
+    .field input:focus,
+    .field textarea:focus { outline: none; border-color: #e85a8a; }
+    .field textarea {
+      min-height: 140px;
+      font-family: 'Gaegu', cursive;
+      font-size: 18px;
+      line-height: 1.55;
+    }
+    .field .hint { font-size: 12px; color: #9a8a7a; margin-top: 6px; }
+
+    /* 이미지 업로드 */
+    .image-drop {
+      display: block;
+      border: 2px dashed #e5c8b8;
+      border-radius: 12px;
+      padding: 28px 20px;
+      text-align: center;
+      cursor: pointer;
+      background: #fff8f0;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .image-drop:hover { border-color: #e85a8a; background: #fff2e8; }
+    .image-drop.has-image { padding: 0; border-style: solid; border-color: #e85a8a; aspect-ratio: 4/3; }
+    .image-drop input[type=file] { display: none; }
+    .image-drop-icon { font-size: 40px; margin-bottom: 6px; opacity: 0.6; }
+    .image-drop-text { font-size: 14px; color: #7a6a5a; line-height: 1.5; }
+    .image-drop-text strong { color: #e85a8a; }
+    .image-preview { position: absolute; inset: 0; background-size: cover; background-position: center; }
+    .image-remove {
+      position: absolute; top: 10px; right: 10px;
+      width: 32px; height: 32px; border-radius: 50%;
+      background: rgba(0,0,0,0.65); color: white; border: none;
+      font-size: 16px; cursor: pointer; display: none; z-index: 2;
+    }
+    .image-drop.has-image .image-remove { display: flex; align-items: center; justify-content: center; }
+    .image-drop.has-image .image-drop-icon,
+    .image-drop.has-image .image-drop-text { display: none; }
+    .image-uploading {
+      position: absolute; inset: 0;
+      background: rgba(255,255,255,0.85);
+      display: none;
+      align-items: center; justify-content: center; flex-direction: column;
+      z-index: 3;
+    }
+    .image-uploading.active { display: flex; }
+    .spinner {
+      width: 32px; height: 32px;
+      border: 3px solid #ffd4de;
+      border-top-color: #e85a8a;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 10px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* 제출 버튼 */
+    .submit-btn {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 14px;
+      background: #e85a8a;
+      color: white;
+      font-size: 17px;
+      font-weight: 700;
+      font-family: 'Gowun Dodum', sans-serif;
+      cursor: pointer;
+      transition: all 0.15s;
+      box-shadow: 0 6px 0 #c74676, 0 8px 20px rgba(232, 90, 138, 0.25);
+    }
+    .submit-btn:hover { background: #f26a99; transform: translateY(-1px); box-shadow: 0 7px 0 #c74676, 0 10px 24px rgba(232, 90, 138, 0.3); }
+    .submit-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #c74676, 0 4px 10px rgba(232, 90, 138, 0.25); }
+    .submit-btn:disabled { background: #d0c4b8; box-shadow: 0 6px 0 #a89888, 0 8px 20px rgba(0,0,0,0.08); cursor: not-allowed; transform: none; }
+
+    /* 감사 화면 */
+    .thanks { display: none; text-align: center; padding: 40px 20px; }
+    .thanks.active { display: block; animation: thanks-in 0.6s cubic-bezier(.2,.8,.2,1.2); }
+    @keyframes thanks-in { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+    .thanks-emoji { font-size: 80px; margin-bottom: 16px; }
+    .thanks h2 { font-family: 'Nanum Pen Script', cursive; font-size: 48px; color: #e85a8a; margin-bottom: 10px; }
+    .thanks p { font-size: 15px; color: #7a6a5a; line-height: 1.6; margin-bottom: 24px; }
+    .thanks .actions { display: flex; gap: 10px; justify-content: center; }
+    .thanks button {
+      padding: 10px 22px;
+      border-radius: 999px;
+      border: 1.5px solid #e85a8a;
+      background: white;
+      color: #e85a8a;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .thanks button.primary { background: #e85a8a; color: white; }
+
+    .error-banner {
+      background: #ffe4e4;
+      color: #b03030;
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .error-banner.active { display: block; }
+
+    .board-link {
+      display: block;
+      text-align: center;
+      margin-top: 24px;
+      font-size: 13px;
+      color: #9a8a7a;
+      text-decoration: none;
+    }
+    .board-link:hover { color: #e85a8a; }
+
+    .char-count { text-align: right; font-size: 11px; color: #b0a090; margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <div class="upload-wrap">
+    <div class="upload-header">
+      <h1>✿ 마음 속 한마디 ✿</h1>
+      <p>이름과 한 마디를 남겨주세요.<br>큰 화면에 실시간으로 나타납니다!</p>
+    </div>
+
+    <div class="upload-card" id="form-card">
+      <div class="error-banner" id="error-banner"></div>
+
+      <div class="field">
+        <label for="name">이름</label>
+        <input type="text" id="name" maxlength="20" placeholder="홍길동" autocomplete="off">
+      </div>
+
+      <div class="field">
+        <label for="message">하고 싶은 말</label>
+        <textarea id="message" maxlength="200" placeholder="마음 속에 있던 말을 꺼내보세요 💐"></textarea>
+        <div class="char-count"><span id="msg-count">0</span> / 200</div>
+      </div>
+
+      <div class="field">
+        <label>사진 (선택)</label>
+        <label class="image-drop" id="image-drop">
+          <input type="file" id="image-input" accept="image/*">
+          <div class="image-drop-icon">📷</div>
+          <div class="image-drop-text">탭해서 사진 선택<br><strong>또는 드래그</strong></div>
+          <div class="image-preview" id="image-preview"></div>
+          <button type="button" class="image-remove" id="image-remove" aria-label="사진 삭제">✕</button>
+          <div class="image-uploading" id="image-uploading">
+            <div class="spinner"></div>
+            <div style="font-size:13px;color:#7a6a5a">업로드 중...</div>
+          </div>
+        </label>
+        <div class="hint">JPG, PNG, 최대 5MB</div>
+      </div>
+
+      <button class="submit-btn" id="submit-btn">💌 메시지 보내기</button>
+    </div>
+
+    <div class="thanks" id="thanks">
+      <div class="thanks-emoji">🎉</div>
+      <h2>고마워요!</h2>
+      <p>메시지가 전광판에 올라갔어요.<br>친구들에게도 공유해주세요 💌</p>
+      <div class="actions">
+        <button class="primary" id="btn-again">한 번 더 쓰기</button>
+        <button id="btn-view">전광판 보기</button>
+      </div>
+    </div>
+
+    <a href="index.html" class="board-link">→ 전광판 보러가기</a>
+  </div>
+
+  <script>
+  (function () {
+    const API_BASE = '/api';
+
+    const $ = (id) => document.getElementById(id);
+    const nameInput = $('name');
+    const messageInput = $('message');
+    const imageInput = $('image-input');
+    const imageDrop = $('image-drop');
+    const imagePreview = $('image-preview');
+    const imageRemove = $('image-remove');
+    const imageUploading = $('image-uploading');
+    const submitBtn = $('submit-btn');
+    const errorBanner = $('error-banner');
+    const formCard = $('form-card');
+    const thanks = $('thanks');
+    const msgCount = $('msg-count');
+
+    let imageUrl = '';
+    let imageDataUrl = '';
+
+    messageInput.addEventListener('input', () => {
+      msgCount.textContent = messageInput.value.length;
+    });
+
+    nameInput.value = localStorage.getItem('grad_last_name') || '';
+
+    imageInput.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (file) handleImage(file);
+    });
+
+    imageDrop.addEventListener('dragover', (e) => { e.preventDefault(); imageDrop.style.borderColor = '#e85a8a'; });
+    imageDrop.addEventListener('dragleave', () => { imageDrop.style.borderColor = ''; });
+    imageDrop.addEventListener('drop', (e) => {
+      e.preventDefault(); imageDrop.style.borderColor = '';
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) handleImage(file);
+    });
+
+    imageRemove.addEventListener('click', (e) => {
+      e.preventDefault(); e.stopPropagation();
+      imageInput.value = '';
+      imagePreview.style.backgroundImage = '';
+      imageDrop.classList.remove('has-image');
+      imageUrl = ''; imageDataUrl = '';
+    });
+
+    async function handleImage(file) {
+      if (file.size > 10 * 1024 * 1024) { showError('이미지가 너무 커요 (10MB 이하로 올려주세요)'); return; }
+      clearError();
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const dataUrl = e.target.result;
+        imagePreview.style.backgroundImage = 'url(' + dataUrl + ')';
+        imageDrop.classList.add('has-image');
+        const resized = await resizeImage(dataUrl, 1200);
+        imageDataUrl = resized;
+        imageUploading.classList.add('active');
+        try {
+          imageUrl = await uploadToBlob(resized);
+        } catch (err) {
+          console.warn('이미지 업로드 실패:', err);
+          showError('사진 업로드 실패 — 텍스트만 보낼수 있어요');
+          imageUrl = '';
+        }
+        imageUploading.classList.remove('active');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function resizeImage(dataUrl, maxSide) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+          let { width, height } = img;
+          if (width > height && width > maxSide) { height = Math.round(height * maxSide / width); width = maxSide; }
+          else if (height > maxSide) { width = Math.round(width * maxSide / height); height = maxSide; }
+          const canvas = document.createElement('canvas');
+          canvas.width = width; canvas.height = height;
+          canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+          canvas.toBlob(b => {
+            const r = new FileReader();
+            r.onload = () => resolve({ dataUrl: r.result, blob: b });
+            r.readAsDataURL(b);
+          }, 'image/jpeg', 0.85);
+        };
+        img.src = dataUrl;
+      });
+    }
+
+    async function uploadToBlob(resized) {
+      // resized는 {dataUrl, blob}
+      const blob = resized.blob || dataUrlToBlob(resized.dataUrl || resized);
+      const res = await fetch(API_BASE + '/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': blob.type || 'image/jpeg' },
+        body: blob,
+      });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        throw new Error(j.error || ('upload ' + res.status));
+      }
+      const { url } = await res.json();
+      return url;
+    }
+
+    function dataUrlToBlob(dataUrl) {
+      const [head, data] = dataUrl.split(',');
+      const mime = head.match(/:(.*?);/)[1];
+      const bin = atob(data);
+      const arr = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+      return new Blob([arr], { type: mime });
+    }
+
+    submitBtn.addEventListener('click', submit);
+
+    async function submit() {
+      clearError();
+      const name = nameInput.value.trim();
+      const message = messageInput.value.trim();
+      if (!name) { showError('이름을 적어주세요'); nameInput.focus(); return; }
+      if (!message) { showError('하고 싶은 말을 적어주세요'); messageInput.focus(); return; }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = '보내는 중...';
+
+      try {
+        const res = await fetch(API_BASE + '/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, message, image: imageUrl }),
+        });
+        if (!res.ok) {
+          const j = await res.json().catch(() => ({}));
+          throw new Error(j.error || ('server ' + res.status));
+        }
+        localStorage.setItem('grad_last_name', name);
+        onSuccess();
+      } catch (err) {
+        console.error(err);
+        showError('전송 실패 — 다시 시도해주세요: ' + err.message);
+        submitBtn.disabled = false;
+        submitBtn.textContent = '💌 메시지 보내기';
+      }
+    }
+
+    function onSuccess() {
+      formCard.style.display = 'none';
+      thanks.classList.add('active');
+      submitBtn.disabled = false;
+      submitBtn.textContent = '💌 메시지 보내기';
+    }
+
+    $('btn-again').addEventListener('click', () => {
+      thanks.classList.remove('active');
+      formCard.style.display = 'block';
+      messageInput.value = '';
+      msgCount.textContent = '0';
+      imageInput.value = '';
+      imagePreview.style.backgroundImage = '';
+      imageDrop.classList.remove('has-image');
+      imageUrl = ''; imageDataUrl = '';
+      messageInput.focus();
+    });
+
+    $('btn-view').addEventListener('click', () => { location.href = 'index.html'; });
+
+    function showError(msg) { errorBanner.textContent = msg; errorBanner.classList.add('active'); }
+    function clearError() { errorBanner.classList.remove('active'); }
+  })();
+  </script>
+</body>
+</html>

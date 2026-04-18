@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <title>졸업식 메시지 전광판</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Gaegu:wght@400;700&family=Gowun+Dodum&family=Gowun+Batang:wght@400;700&family=Hi+Melody&family=Dokdo&display=swap"
+        media="print" onload="this.media='all'">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%; height: 100%; overflow: hidden;
+      font-family: 'Gowun Dodum', 'Apple SD Gothic Neo', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      background: #fef7f0;
+    }
+    #stage { width: 100vw; height: 100vh; position: relative; }
+
+    /* ===== 상단 바 ===== */
+    .topbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; padding: 14px 22px; pointer-events: none; }
+    .topbar > * { pointer-events: auto; }
+    .style-switcher { display: flex; gap: 6px; background: rgba(255,255,255,0.85); backdrop-filter: blur(10px); border-radius: 999px; padding: 4px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); font-family: 'Gowun Dodum', sans-serif; }
+    .style-switcher button { border: none; background: transparent; padding: 8px 16px; border-radius: 999px; font-size: 14px; color: #555; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+    .style-switcher button:hover { color: #222; }
+    .style-switcher button.active { background: #2b2b2b; color: #fff; }
+    .topbar-right { display: flex; gap: 10px; align-items: center; }
+    .counter-pill { background: rgba(255,255,255,0.85); backdrop-filter: blur(10px); border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #333; box-shadow: 0 2px 12px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 8px; font-family: 'Gowun Dodum', sans-serif; }
+    .counter-pill .count { font-size: 18px; font-weight: 700; color: #e85a8a; font-variant-numeric: tabular-nums; }
+    .icon-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: rgba(255,255,255,0.85); backdrop-filter: blur(10px); box-shadow: 0 2px 12px rgba(0,0,0,0.08); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: transform 0.15s; text-decoration: none; color: inherit; }
+    .icon-btn:hover { transform: scale(1.08); }
+
+    /* ===== 관리자 배지 / 삭제 버튼 ===== */
+    .admin-badge { position: fixed; top: 18px; left: 50%; transform: translateX(-50%); background: rgba(30, 144, 255, 0.95); color: #fff; padding: 6px 14px; border-radius: 999px; font-size: 12px; z-index: 500; box-shadow: 0 2px 10px rgba(0,0,0,0.12); font-weight: 700; letter-spacing: 0.5px; }
+    .delete-btn { position: absolute; top: 6px; right: 6px; width: 26px; height: 26px; border-radius: 50%; background: rgba(200, 40, 60, 0.95); color: white; border: none; font-size: 13px; cursor: pointer; display: none; align-items: center; justify-content: center; z-index: 20; line-height: 1; padding: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.25); }
+    body.is-admin .polaroid .delete-btn,
+    body.is-admin .float-card .delete-btn,
+    body.is-admin .scrap-entry .delete-btn { display: flex; }
+    .delete-btn:hover { background: rgba(230, 50, 70, 1); transform: scale(1.1); }
+
+    .sample-badge { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: rgba(255, 235, 150, 0.95); color: #6b5b1c; padding: 8px 18px; border-radius: 999px; font-size: 13px; z-index: 500; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+
+    /* ===== Tweaks 패널 ===== */
+    #tweaks-panel { position: fixed; bottom: 20px; right: 20px; width: 280px; background: #fefaf2; border-radius: 14px; box-shadow: 0 12px 36px rgba(0,0,0,0.2); z-index: 1500; font-family: 'Gowun Dodum', sans-serif; color: #333; overflow: hidden; }
+    .tweaks-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: #2b2b2b; color: #fff; font-size: 14px; font-weight: 600; }
+    .tweaks-header button { background: transparent; border: none; color: #fff; font-size: 14px; cursor: pointer; opacity: 0.7; padding: 4px 8px; }
+    .tweaks-body { padding: 16px; max-height: 70vh; overflow-y: auto; }
+    .tweaks-group { margin-bottom: 16px; }
+    .tweaks-group-label { font-size: 12px; color: #888; font-weight: 700; margin-bottom: 8px; letter-spacing: 0.5px; }
+    .tweaks-group label { display: block; font-size: 12px; color: #555; margin-bottom: 8px; }
+    .tweaks-group input[type=text] { width: 100%; margin-top: 4px; padding: 8px 10px; border: 1.5px solid #e5d9c4; border-radius: 8px; font-size: 13px; font-family: 'Gowun Dodum', sans-serif; background: white; color: #222; }
+    .tweaks-hint { font-size: 11px; color: #999; line-height: 1.5; margin-top: 8px; padding-top: 10px; border-top: 1px solid #eee; }
+
+    /* ===== 스타일 1: 코르크보드 ===== */
+    .style-corkboard { width: 100vw; height: 100vh; background: repeating-radial-gradient(circle at 20% 30%, #c9a576 0px, #d4b183 2px, #bd9566 4px), #c9a576; position: relative; overflow: hidden; }
+    .polaroid { position: absolute; background: #fbf8f1; padding: 14px 14px 32px 14px; box-shadow: 0 6px 18px rgba(0,0,0,0.25), 0 12px 30px rgba(0,0,0,0.15); font-family: 'Gowun Dodum', sans-serif; transition: transform 0.4s; animation: polaroid-drop 0.8s cubic-bezier(.2,.8,.2,1.2); }
+    @keyframes polaroid-drop { 0% { opacity: 0; transform: translateY(-40px) rotate(var(--rot, 0deg)); } 100% { opacity: 1; transform: translateY(0) rotate(var(--rot, 0deg)); } }
+    .polaroid::before { content: ''; position: absolute; top: -6px; left: 50%; transform: translateX(-50%); width: 16px; height: 16px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #ff8fa8, #d63858 70%); box-shadow: 0 2px 4px rgba(0,0,0,0.4); z-index: 2; }
+    .polaroid-photo { width: 100%; aspect-ratio: 1 / 1; overflow: hidden; background: linear-gradient(135deg, #ffd4de, #ffe8b0, #d4f0e0); display: flex; align-items: center; justify-content: center; position: relative; }
+    .polaroid-photo img { width: 100%; height: 100%; object-fit: cover; }
+    .polaroid-photo.no-image { background: linear-gradient(135deg, #fde0e4, #fde8c4, #e0f0df); }
+    .polaroid-photo.no-image::after { content: attr(data-emoji); font-size: 44px; opacity: 0.45; }
+    .polaroid-name { margin-top: 12px; font-family: 'Nanum Pen Script', cursive; font-size: 22px; color: #3a2a1a; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .polaroid-message { margin-top: 8px; font-family: 'Gaegu', cursive; font-size: 15px; line-height: 1.4; color: #4a3a2a; text-align: center; text-wrap: pretty; word-break: keep-all; overflow-wrap: break-word; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
+    .polaroid.size-sm .polaroid-message { font-size: 15px; -webkit-line-clamp: 3; }
+    .polaroid.size-md .polaroid-message { font-size: 14px; -webkit-line-clamp: 5; }
+    .polaroid.size-lg .polaroid-message { font-size: 13.5px; -webkit-line-clamp: 7; }
+    .cork-title { position: absolute; top: 80px; left: 50%; transform: translateX(-50%) rotate(-2deg); z-index: 100; font-family: 'Nanum Pen Script', cursive; font-size: 56px; color: #fff; background: #e85a8a; padding: 12px 44px; box-shadow: 0 4px 14px rgba(0,0,0,0.25); letter-spacing: 2px; white-space: nowrap; pointer-events: none; }
+
+    /* ===== 스타일 2: 밤하늘 ===== */
+    .style-sky { width: 100vw; height: 100vh; background: radial-gradient(ellipse at 10% 30%, rgba(255,200,220,0.4), transparent 50%), radial-gradient(ellipse at 90% 60%, rgba(200,220,255,0.4), transparent 50%), linear-gradient(180deg, #fce8ef 0%, #e8e0f5 45%, #d4e4f5 100%); position: relative; overflow: hidden; }
+    .sky-stars { position: absolute; inset: 0; pointer-events: none; }
+    .sky-star { position: absolute; width: 4px; height: 4px; background: white; border-radius: 50%; box-shadow: 0 0 6px rgba(255,255,255,0.8); animation: twinkle 3s ease-in-out infinite; }
+    @keyframes twinkle { 0%,100% { opacity: 0.3; } 50% { opacity: 1; } }
+    .petal { position: absolute; width: 14px; height: 14px; background: radial-gradient(ellipse at 30% 30%, #ffc9d9, #f590af); border-radius: 60% 20% 60% 20%; pointer-events: none; opacity: 0.7; animation: petal-fall linear infinite; }
+    @keyframes petal-fall { 0% { transform: translateY(-10vh) rotate(0deg); } 100% { transform: translateY(110vh) rotate(720deg); } }
+    .sky-title { position: absolute; top: 44px; left: 50%; transform: translateX(-50%); font-family: 'Gowun Batang', serif; font-weight: 700; font-size: 40px; color: #5c4a6e; letter-spacing: 3px; text-align: center; z-index: 100; pointer-events: none; white-space: nowrap; }
+    .sky-title small { display: block; font-size: 16px; letter-spacing: 4px; color: #9080a0; font-weight: 400; margin-top: 4px; font-family: 'Gowun Dodum', sans-serif; }
+    .float-card { position: absolute; background: rgba(255,255,255,0.88); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.9); border-radius: 18px; padding: 16px 18px; box-shadow: 0 10px 30px rgba(120, 90, 140, 0.15); font-family: 'Gowun Dodum', sans-serif; animation: float-in 1s cubic-bezier(.2,.8,.2,1); }
+    @keyframes float-in { 0% { opacity: 0; transform: translateY(20px) scale(0.85); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+    .float-card-image { width: 100%; aspect-ratio: 4 / 3; border-radius: 12px; overflow: hidden; background: linear-gradient(135deg, #fde0e4, #e0e4fd); margin-bottom: 12px; }
+    .float-card-image img { width: 100%; height: 100%; object-fit: cover; }
+    .float-card-name { font-family: 'Hi Melody', cursive; font-size: 20px; color: #8a5a7c; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .float-card-message { font-size: 15px; line-height: 1.55; color: #4a3a5a; word-break: keep-all; overflow-wrap: break-word; display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; }
+
+    /* ===== 스타일 3: 스크랩북 ===== */
+    .style-scrapbook { width: 100vw; height: 100vh; background: repeating-linear-gradient(0deg, transparent, transparent 38px, rgba(180,150,120,0.12) 38px, rgba(180,150,120,0.12) 39px), linear-gradient(180deg, #f9efd9 0%, #f2e4c8 100%); position: relative; overflow: hidden; font-family: 'Gowun Batang', serif; }
+    .scrap-holes { position: absolute; left: 0; top: 0; bottom: 0; width: 50px; background: linear-gradient(90deg, rgba(0,0,0,0.08), transparent); display: flex; flex-direction: column; justify-content: space-around; align-items: center; padding: 60px 0; z-index: 90; }
+    .scrap-hole { width: 22px; height: 22px; border-radius: 50%; background: radial-gradient(circle at 40% 30%, #8a6a4a, #3a2a1a); box-shadow: inset 0 2px 4px rgba(0,0,0,0.6); }
+    .scrap-page { position: absolute; inset: 40px 60px 40px 90px; display: grid; grid-template-columns: 1fr 1fr 1fr; grid-auto-rows: min-content; gap: 30px 40px; padding: 80px 40px 40px 40px; overflow: hidden; }
+    .scrap-title { position: absolute; top: 30px; left: 50%; transform: translateX(-50%); z-index: 100; font-family: 'Dokdo', cursive; font-size: 54px; color: #3a2a1a; letter-spacing: 2px; pointer-events: none; }
+    .scrap-title::before { content: '✿'; margin-right: 18px; color: #d47a8c; }
+    .scrap-title::after { content: '✿'; margin-left: 18px; color: #d47a8c; }
+    .scrap-entry { position: relative; background: #fefaf0; padding: 16px 18px 18px; box-shadow: 0 4px 12px rgba(60,40,20,0.15); animation: scrap-in 0.7s cubic-bezier(.2,.8,.2,1.2); transform: rotate(var(--rot, -1deg)); }
+    .scrap-entry::before { content: ''; position: absolute; top: -14px; left: 50%; transform: translateX(-50%) rotate(-4deg); width: 80px; height: 24px; background: repeating-linear-gradient(45deg, rgba(255,210,100,0.75), rgba(255,210,100,0.75) 6px, rgba(255,190,80,0.65) 6px, rgba(255,190,80,0.65) 12px); }
+    @keyframes scrap-in { 0% { opacity: 0; transform: translateY(-30px) rotate(0deg); } 100% { opacity: 1; transform: translateY(0) rotate(var(--rot, -1deg)); } }
+    .scrap-entry-photo { width: 100%; aspect-ratio: 5 / 4; overflow: hidden; background: linear-gradient(135deg, #f2d4c4, #c4d4e2); margin-bottom: 12px; filter: sepia(0.15); }
+    .scrap-entry-photo img { width: 100%; height: 100%; object-fit: cover; }
+    .scrap-entry-photo.no-image { display: flex; align-items: center; justify-content: center; font-family: 'Nanum Pen Script', cursive; font-size: 48px; color: rgba(60,40,20,0.25); }
+    .scrap-entry-name { font-family: 'Nanum Pen Script', cursive; font-size: 26px; color: #6a4a2a; border-bottom: 1.5px dashed #cdb590; padding-bottom: 6px; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .scrap-entry-message { font-size: 14px; line-height: 1.6; color: #3a2a1a; font-family: 'Gowun Batang', serif; word-break: keep-all; overflow-wrap: break-word; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
+    .scrap-entry-date { display: block; margin-top: 10px; font-size: 11px; color: #9a7a5a; text-align: right; font-family: 'Gowun Dodum', sans-serif; }
+    .scrap-page-indicator { position: absolute; bottom: 20px; right: 80px; font-family: 'Gowun Dodum', sans-serif; font-size: 13px; color: #9a7a5a; letter-spacing: 2px; z-index: 100; }
+  </style>
+</head>
+<body>
+  <div id="stage" data-screen-label="01 전광판"></div>
+
+  <div class="topbar">
+    <div class="style-switcher" id="style-switcher"></div>
+    <div class="topbar-right">
+      <div class="counter-pill">💌 메시지 <span class="count" id="counter">0</span></div>
+      <a href="upload.html" class="icon-btn" title="메시지 작성">✎</a>
+      <button class="icon-btn" id="open-fullscreen" title="전체화면">⛶</button>
+    </div>
+  </div>
+
+  <div class="sample-badge" id="sample-badge" style="display:none">샘플 데이터입니다 — 메시지가 아직 없거나 API가 연결되지 않았어요</div>
+
+  <div class="admin-badge" id="admin-badge" style="display:none">🛡️ 관리자 모드</div>
+
+  <script>
+  // ==================== TWEAKS ====================
+  window.__TWEAKS__ = /*EDITMODE-BEGIN*/{
+    "corkboard_title": "수고하셨습니다",
+    "sky_title": "수고하셨습니다",
+    "sky_subtitle": "학교로 찾아가는 사회정서교육 연수",
+    "scrapbook_title": "수고하셨습니다"
+  }/*EDITMODE-END*/;
+
+  // ==================== DATA (API) ====================
+  const SAMPLE = [
+    { id: 's1', name: '김서연', message: '마음 속에 있는 따뜻한 한마디를 남겨보세요 🌸', image: '', ts: Date.now() - 1800000 },
+    { id: 's2', name: '이준호', message: '오늘 여기 함께해서 정말 좋았어요.', image: '', ts: Date.now() - 1500000 },
+    { id: 's3', name: '박민지', message: '연수 들으러 오길 잘 했어요!! 많이 배워갑니다 💛', image: '', ts: Date.now() - 1320000 },
+    { id: 's4', name: '최도윤', message: '선생님들 감사합니다. 현장에서 잘 적용해볼게요.', image: '', ts: Date.now() - 1080000 },
+    { id: 's5', name: '정하늘', message: '같이 애기들과 나누던 시간이 진짜 소중했어요. 꼭 다시 만나요.', image: '', ts: Date.now() - 900000 },
+    { id: 's6', name: '한지우', message: '사례 나눠주셔서 감사해요 🌙', image: '', ts: Date.now() - 720000 },
+    { id: 's7', name: '송예린', message: '또 오고 싶은 연수였어요.', image: '', ts: Date.now() - 600000 },
+    { id: 's8', name: '윤지훈', message: '여기 오신 분들 모두 고맙습니다 😢', image: '', ts: Date.now() - 480000 },
+    { id: 's9', name: '강민서', message: '아이들에게 돌아가면 따뜻하게 잘 알려줄게요.', image: '', ts: Date.now() - 300000 },
+    { id: 's10', name: '조현우', message: '연수부 분들 고맙습니다. 덕분에 배운 게 많아요.', image: '', ts: Date.now() - 180000 },
+    { id: 's11', name: '임채원', message: '우리 반 아이들 생각이 나네요. 힌히', image: '', ts: Date.now() - 120000 },
+    { id: 's12', name: '배소민', message: '새로운 마음으로 다시 시작해볼게요.', image: '', ts: Date.now() - 60000 },
+  ];
+
+  // ?admin=KEY 쿼리에서 읽어오고 sessionStorage 에 보관
+  const urlParams = new URLSearchParams(location.search);
+  const adminFromUrl = urlParams.get('admin');
+  if (adminFromUrl !== null) {
+    if (adminFromUrl) sessionStorage.setItem('admin_key', adminFromUrl);
+    else sessionStorage.removeItem('admin_key');
+    urlParams.delete('admin');
+    const newSearch = urlParams.toString();
+    history.replaceState(null, '', location.pathname + (newSearch ? '?' + newSearch : '') + location.hash);
+  }
+  const ADMIN_KEY = sessionStorage.getItem('admin_key') || '';
+  const IS_ADMIN = !!ADMIN_KEY;
+
+  const API_BASE = '/api';
+  const POLL_MS = 2000;
+
+  async function fetchMessages() {
+    const res = await fetch(API_BASE + '/messages', { cache: 'no-store' });
+    if (!res.ok) throw new Error('API ' + res.status);
+    const { messages } = await res.json();
+    return (messages || []).sort((a, b) => b.ts - a.ts);
+  }
+
+  async function deleteMessage(id) {
+    if (!ADMIN_KEY) throw new Error('관리자만 가능');
+    const res = await fetch(API_BASE + '/messages?id=' + encodeURIComponent(id) + '&key=' + encodeURIComponent(ADMIN_KEY), { method: 'DELETE' });
+    if (!res.ok) {
+      const txt = await res.text();
+      throw new Error(txt || '삭제 실패');
+    }
+  }
+
+  const MessageStore = {
+    isApiAvailable: true,
+    subscribe(cb) {
+      let lastSig = '';
+      const emit = (msgs, isSample) => {
+        const sig = msgs.map(m => m.id || (m.ts + '|' + m.message.length)).join('|');
+        if (sig !== lastSig) { lastSig = sig; cb(msgs, { isSample: !!isSample }); }
+      };
+      const tick = async () => {
+        try {
+          const msgs = await fetchMessages();
+          this.isApiAvailable = true;
+          emit(msgs.length ? msgs : SAMPLE.slice(), !msgs.length);
+        } catch (err) {
+          console.warn('API 로드 실패 — 샘플로 폴백:', err.message);
+          this.isApiAvailable = false;
+          emit(SAMPLE.slice(), true);
+        }
+      };
+      tick();
+      setInterval(tick, POLL_MS);
+    },
+  };
+
+  // ==================== RENDER ====================
+  const STYLE_KEY = 'grad_board_style';
+  const STYLES = ['corkboard', 'sky', 'scrapbook'];
+  const STYLE_LABELS = { corkboard: '코르크보드', sky: '밤하늘', scrapbook: '스크랩북' };
+
+  const stage = document.getElementById('stage');
+  const counter = document.getElementById('counter');
+  const switcher = document.getElementById('style-switcher');
+  const sampleBadge = document.getElementById('sample-badge');
+
+  let currentStyle = localStorage.getItem(STYLE_KEY) || 'corkboard';
+  let lastMessages = [];
+  let seenTs = new Set();
+  let scrapPage = 0;
+  let scrapPageTimer = null;
+
+  STYLES.forEach(s => {
+    const b = document.createElement('button');
+    b.textContent = STYLE_LABELS[s];
+    b.dataset.style = s;
+    b.onclick = () => setStyle(s);
+    switcher.appendChild(b);
+  });
+
+  function setStyle(s) {
+    currentStyle = s;
+    localStorage.setItem(STYLE_KEY, s);
+    if (scrapPageTimer) { clearInterval(scrapPageTimer); scrapPageTimer = null; }
+    [...switcher.querySelectorAll('button')].forEach(b => b.classList.toggle('active', b.dataset.style === s));
+    render(lastMessages, true);
+  }
+
+  function render(messages, forceRedraw) {
+    counter.textContent = messages.length;
+    if (currentStyle === 'corkboard') renderCorkboard(messages, forceRedraw);
+    else if (currentStyle === 'sky') renderSky(messages, forceRedraw);
+    else renderScrapbook(messages, forceRedraw);
+    applyTitles();
+  }
+
+  function renderCorkboard(messages) {
+    stage.className = 'style-corkboard';
+    stage.innerHTML = '<div class="cork-title">' + esc(window.__TWEAKS__.corkboard_title) + '</div>';
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const topPad = 210, bottomPad = 30, sidePad = 30;
+    const cols = vw >= 1400 ? 6 : vw >= 1000 ? 5 : vw >= 720 ? 4 : 3;
+    const rows = vh >= 900 ? 4 : vh >= 650 ? 3 : 2;
+    const list = messages.slice(0, cols * rows);
+    const cellW = (vw - sidePad * 2) / cols;
+    const cellH = (vh - topPad - bottomPad) / rows;
+    const cardW = Math.min(210, cellW - 24);
+    const positions = [];
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) positions.push({ r, c });
+    const seed = list.length * 17 + 3;
+    positions.sort((a, b) => hash(a.r * 99 + a.c + seed) - hash(b.r * 99 + b.c + seed));
+    list.forEach((msg, i) => {
+      const pos = positions[i % positions.length];
+      const jitterX = (hash(i + 1) - 0.5) * cellW * 0.15;
+      const jitterY = (hash(i + 99) - 0.5) * cellH * 0.15;
+      const x = sidePad + pos.c * cellW + cellW / 2 + jitterX;
+      const y = topPad + pos.r * cellH + cellH / 2 + jitterY;
+      const rot = (hash(msg.ts + i) - 0.5) * 10;
+      const sizeClass = msg.message.length > 60 ? 'size-lg' : msg.message.length > 25 ? 'size-md' : 'size-sm';
+      const el = document.createElement('div');
+      el.className = 'polaroid ' + sizeClass;
+      el.style.setProperty('--rot', rot + 'deg');
+      el.style.width = cardW + 'px';
+      el.style.left = (x - cardW / 2) + 'px';
+      el.style.top = (y - cardW * 0.75) + 'px';
+      el.style.transform = 'rotate(' + rot + 'deg)';
+      el.style.zIndex = String(10 + i);
+      const hasImg = !!msg.image;
+      const emojis = ['🌸', '✨', '🎓', '💝', '🌟', '🎀'];
+      const emoji = emojis[hash(msg.ts) * emojis.length | 0];
+      el.innerHTML =
+        '<div class="polaroid-photo ' + (hasImg ? '' : 'no-image') + '" data-emoji="' + emoji + '">' +
+          (hasImg ? '<img src="' + esc(msg.image) + '" onerror="this.parentElement.classList.add(\'no-image\');this.remove()">' : '') +
+        '</div>' +
+        '<div class="polaroid-name">' + esc(msg.name) + '</div>' +
+        '<div class="polaroid-message">' + esc(msg.message) + '</div>' +
+        (msg.id ? '<button class="delete-btn" data-delete-id="' + esc(msg.id) + '" title="삭제">✕</button>' : '');
+      stage.appendChild(el);
+    });
+  }
+
+  function renderSky(messages) {
+    stage.className = 'style-sky';
+    stage.innerHTML =
+      '<div class="sky-stars" id="sky-stars"></div>' +
+      '<div class="sky-title">' + esc(window.__TWEAKS__.sky_title) + '<small>' + esc(window.__TWEAKS__.sky_subtitle) + '</small></div>';
+    const starsEl = stage.querySelector('#sky-stars');
+    for (let i = 0; i < 60; i++) {
+      const s = document.createElement('div');
+      s.className = 'sky-star';
+      s.style.left = (Math.random() * 100) + '%';
+      s.style.top = (Math.random() * 100) + '%';
+      s.style.animationDelay = (Math.random() * 3) + 's';
+      s.style.width = s.style.height = (Math.random() * 3 + 2) + 'px';
+      starsEl.appendChild(s);
+    }
+    for (let i = 0; i < 8; i++) {
+      const p = document.createElement('div');
+      p.className = 'petal';
+      p.style.left = (Math.random() * 100) + '%';
+      p.style.animationDuration = (12 + Math.random() * 10) + 's';
+      p.style.animationDelay = -(Math.random() * 10) + 's';
+      stage.appendChild(p);
+    }
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const topPad = 170, bottomPad = 30, sidePad = 30;
+    const cols = vw >= 1400 ? 5 : vw >= 1000 ? 4 : vw >= 720 ? 3 : 2;
+    const rows = vh >= 900 ? 3 : 2;
+    const list = messages.slice(0, cols * rows);
+    const cellW = (vw - sidePad * 2) / cols;
+    const cellH = (vh - topPad - bottomPad) / rows;
+    const cardW = Math.max(160, Math.min(260, cellW * 0.88));
+    const maxJitter = Math.max(0, (cellW - cardW) / 2 - 6);
+    list.forEach((msg, i) => {
+      const r = Math.floor(i / cols), c = i % cols;
+      const jitterX = (hash(i + 1) - 0.5) * 2 * maxJitter;
+      const jitterY = (hash(i + 99) - 0.5) * 16;
+      const cx = sidePad + c * cellW + cellW / 2;
+      const cy = topPad + r * cellH + cellH / 2;
+      const x = cx - cardW / 2 + jitterX;
+      const y = cy - cellH / 2 + 20 + jitterY;
+      const tilt = (hash(msg.ts + i) - 0.5) * 4;
+      const el = document.createElement('div');
+      el.className = 'float-card';
+      el.style.width = cardW + 'px';
+      el.style.left = x + 'px';
+      el.style.top = y + 'px';
+      el.style.transform = 'rotate(' + tilt + 'deg)';
+      const hasImg = !!msg.image;
+      el.innerHTML =
+        (hasImg ? '<div class="float-card-image"><img src="' + esc(msg.image) + '" onerror="this.parentElement.remove()"></div>' : '') +
+        '<div class="float-card-name">' + esc(msg.name) + '</div>' +
+        '<div class="float-card-message">' + esc(msg.message) + '</div>' +
+        (msg.id ? '<button class="delete-btn" data-delete-id="' + esc(msg.id) + '" title="삭제">✕</button>' : '');
+      stage.appendChild(el);
+    });
+  }
+
+  function renderScrapbook(messages) {
+    stage.className = 'style-scrapbook';
+    const perPage = 9;
+    const totalPages = Math.max(1, Math.ceil(messages.length / perPage));
+    if (scrapPage >= totalPages) scrapPage = 0;
+    const start = scrapPage * perPage;
+    const list = messages.slice(start, start + perPage);
+    stage.innerHTML =
+      '<div class="scrap-holes">' + Array(6).fill('<div class="scrap-hole"></div>').join('') + '</div>' +
+      '<div class="scrap-title">' + esc(window.__TWEAKS__.scrapbook_title) + '</div>' +
+      '<div class="scrap-page" id="scrap-page"></div>' +
+      '<div class="scrap-page-indicator">페이지 ' + (scrapPage + 1) + ' / ' + totalPages + '</div>';
+    const pageEl = stage.querySelector('#scrap-page');
+    list.forEach((msg, i) => {
+      const rot = (hash(msg.ts + i) - 0.5) * 5;
+      const el = document.createElement('div');
+      el.className = 'scrap-entry';
+      el.style.setProperty('--rot', rot + 'deg');
+      el.style.animationDelay = (i * 60) + 'ms';
+      const hasImg = !!msg.image;
+      const d = new Date(msg.ts);
+      const dateStr = d.getFullYear() + '.' + String(d.getMonth()+1).padStart(2,'0') + '.' + String(d.getDate()).padStart(2,'0');
+      el.innerHTML =
+        '<div class="scrap-entry-photo ' + (hasImg ? '' : 'no-image') + '">' +
+          (hasImg ? '<img src="' + esc(msg.image) + '" onerror="this.parentElement.classList.add(\'no-image\');this.parentElement.innerHTML=\'♡\'">' : '♡') +
+        '</div>' +
+        '<div class="scrap-entry-name">' + esc(msg.name) + '</div>' +
+        '<div class="scrap-entry-message">' + esc(msg.message) + '</div>' +
+        '<div class="scrap-entry-date">' + dateStr + '</div>' +
+        (msg.id ? '<button class="delete-btn" data-delete-id="' + esc(msg.id) + '" title="삭제">✕</button>' : '');
+      pageEl.appendChild(el);
+    });
+    if (scrapPageTimer) clearInterval(scrapPageTimer);
+    if (totalPages > 1) {
+      scrapPageTimer = setInterval(() => {
+        scrapPage = (scrapPage + 1) % totalPages;
+        renderScrapbook(lastMessages);
+      }, 12000);
+    }
+  }
+
+  function applyTitles() {
+    const T = window.__TWEAKS__;
+    const cork = stage.querySelector('.cork-title');
+    if (cork) cork.textContent = T.corkboard_title;
+    const sky = stage.querySelector('.sky-title');
+    if (sky) {
+      const small = sky.querySelector('small');
+      [...sky.childNodes].forEach(n => { if (n.nodeType === 3) n.remove(); });
+      sky.insertBefore(document.createTextNode(T.sky_title), small);
+      if (small) small.textContent = T.sky_subtitle;
+    }
+    const scrap = stage.querySelector('.scrap-title');
+    if (scrap) scrap.textContent = T.scrapbook_title;
+  }
+
+  function hash(n) { const x = Math.sin(n * 9999.1) * 43758.5453; return x - Math.floor(x); }
+  function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  setStyle(currentStyle);
+
+  MessageStore.subscribe((messages, meta) => {
+    lastMessages = messages;
+    render(messages, false);
+    messages.forEach(m => seenTs.add(m.ts));
+    sampleBadge.style.display = meta.isSample ? 'block' : 'none';
+  });
+
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => render(lastMessages, true), 200);
+  });
+
+  // ==================== 관리자 / 전체화면 ====================
+  if (IS_ADMIN) {
+    document.getElementById('admin-badge').style.display = 'block';
+    document.body.classList.add('is-admin');
+  }
+
+  document.getElementById('open-fullscreen').onclick = () => {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+    else document.exitFullscreen().catch(() => {});
+  };
+
+  // 관리자 모드: 카드 클릭으로 삭제
+  document.addEventListener('click', async (e) => {
+    if (!IS_ADMIN) return;
+    const delBtn = e.target.closest('[data-delete-id]');
+    if (!delBtn) return;
+    e.preventDefault(); e.stopPropagation();
+    const id = delBtn.dataset.deleteId;
+    if (!id || id.startsWith('s')) { alert('샘플은 삭제할 수 없어요'); return; }
+    if (!confirm('이 메시지를 삭제할까요?')) return;
+    try { await deleteMessage(id); } catch (err) { alert('삭제 실패: ' + err.message); }
+  });
+
+  // ==================== Tweaks 패널 ====================
+  (function () {
+    const T = window.__TWEAKS__;
+    const escAttr = s => String(s).replace(/"/g, '&quot;');
+    const panel = document.createElement('div');
+    panel.id = 'tweaks-panel';
+    panel.style.display = 'none';
+    panel.innerHTML =
+      '<div class="tweaks-header"><span>✎ Tweaks</span><button id="tweaks-close">✕</button></div>' +
+      '<div class="tweaks-body">' +
+        '<div class="tweaks-group"><div class="tweaks-group-label">🌸 코르크보드</div><label>제목<input type="text" data-key="corkboard_title" value="' + escAttr(T.corkboard_title) + '"></label></div>' +
+        '<div class="tweaks-group"><div class="tweaks-group-label">✨ 밤하늘</div><label>제목<input type="text" data-key="sky_title" value="' + escAttr(T.sky_title) + '"></label><label>부제<input type="text" data-key="sky_subtitle" value="' + escAttr(T.sky_subtitle) + '"></label></div>' +
+        '<div class="tweaks-group"><div class="tweaks-group-label">📖 스크랩북</div><label>제목<input type="text" data-key="scrapbook_title" value="' + escAttr(T.scrapbook_title) + '"></label></div>' +
+        '<div class="tweaks-hint">입력 즉시 반영됩니다.</div>' +
+      '</div>';
+    document.body.appendChild(panel);
+    panel.querySelector('#tweaks-close').onclick = () => panel.style.display = 'none';
+    panel.querySelectorAll('input[data-key]').forEach(inp => {
+      inp.addEventListener('input', () => {
+        T[inp.dataset.key] = inp.value;
+        applyTitles();
+        try { window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { [inp.dataset.key]: inp.value } }, '*'); } catch (e) {}
+      });
+    });
+    window.addEventListener('message', e => {
+      const d = e.data || {};
+      if (d.type === '__activate_edit_mode') panel.style.display = 'block';
+      else if (d.type === '__deactivate_edit_mode') panel.style.display = 'none';
+    });
+    try { window.parent.postMessage({ type: '__edit_mode_available' }, '*'); } catch (e) {}
+  })();
+  </script>
+</body>
+</html>
