@@ -5,7 +5,12 @@
  * DELETE /api/messages?id=xxx&key=ADMIN → { ok }
  */
 
-import { kv } from '@vercel/kv';
+import { Redis } from '@upstash/redis';
+
+const kv = new Redis({
+  url: process.env.kv_KV_REST_API_URL,
+  token: process.env.kv_KV_REST_API_TOKEN,
+});
 
 const KEY = 'messages';           // KV 리스트 키
 const MAX_MESSAGES = 500;         // 보관할 최대 개수
