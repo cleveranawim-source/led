@@ -111,6 +111,25 @@
     .scrap-nav-btn:active { transform: scale(0.95); }
     .scrap-page-indicator { font-family: 'Gowun Dodum', sans-serif; font-size: 13px; color: #6a4a2a; letter-spacing: 1px; min-width: 38px; text-align: center; font-weight: 700; }
 
+    /* ===== 데스크탑 좁은 윈도우(높이 ≤ 850px): 카드 컴팩트화 ===== */
+    /* 일반적인 1366×768 노트북 / 절반 윈도우 / 1000×750 같은 환경 */
+    @media (min-width: 720px) and (max-height: 850px) {
+      .polaroid-photo { aspect-ratio: 4 / 3; }
+      .polaroid-message { -webkit-line-clamp: 3; font-size: 13px; }
+      .polaroid.size-md .polaroid-message { -webkit-line-clamp: 3; }
+      .polaroid.size-lg .polaroid-message { -webkit-line-clamp: 4; }
+      .polaroid { padding: 10px 10px 24px 10px; }
+      .polaroid-name { font-size: 20px; margin-top: 10px; }
+
+      .float-card-image { aspect-ratio: 16 / 9; margin-bottom: 8px; }
+      .float-card-message { -webkit-line-clamp: 4; }
+      .float-card { padding: 12px 14px; }
+
+      /* 코르크/밤하늘 타이틀도 살짝 작게 */
+      .cork-title { font-size: 44px; padding: 10px 32px; top: 70px; }
+      .sky-title { font-size: 32px; top: 38px; }
+    }
+
     /* ===== 모바일 반응형 (≤720px) ===== */
     @media (max-width: 720px) {
       /* 상단바를 2단으로: 1행=스타일 스위처, 2행=카운터/관리자/아이콘 */
