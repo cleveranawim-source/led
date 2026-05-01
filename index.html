@@ -104,7 +104,12 @@
     .scrap-entry-name { font-family: 'Nanum Pen Script', cursive; font-size: 26px; color: #6a4a2a; border-bottom: 1.5px dashed #cdb590; padding-bottom: 6px; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .scrap-entry-message { font-size: 14px; line-height: 1.6; color: #3a2a1a; font-family: 'Gowun Batang', serif; word-break: keep-all; overflow-wrap: break-word; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
     .scrap-entry-date { display: block; margin-top: 10px; font-size: 11px; color: #9a7a5a; text-align: right; font-family: 'Gowun Dodum', sans-serif; }
-    .scrap-page-indicator { position: absolute; bottom: 20px; right: 80px; font-family: 'Gowun Dodum', sans-serif; font-size: 13px; color: #9a7a5a; letter-spacing: 2px; z-index: 100; }
+    /* 스크랩북 페이지 네비게이션 */
+    .scrap-page-nav { position: absolute; bottom: 18px; right: 80px; display: flex; align-items: center; gap: 10px; z-index: 100; pointer-events: auto; }
+    .scrap-nav-btn { width: 32px; height: 32px; border-radius: 50%; border: none; background: rgba(255, 250, 240, 0.95); color: #6a4a2a; font-size: 13px; cursor: pointer; box-shadow: 0 2px 8px rgba(60,40,20,0.18); display: flex; align-items: center; justify-content: center; padding: 0; transition: transform 0.15s; font-family: -apple-system, sans-serif; }
+    .scrap-nav-btn:hover { transform: scale(1.08); background: rgba(255, 245, 220, 1); }
+    .scrap-nav-btn:active { transform: scale(0.95); }
+    .scrap-page-indicator { font-family: 'Gowun Dodum', sans-serif; font-size: 13px; color: #6a4a2a; letter-spacing: 1px; min-width: 38px; text-align: center; font-weight: 700; }
 
     /* ===== 모바일 반응형 (≤720px) ===== */
     @media (max-width: 720px) {
@@ -145,15 +150,17 @@
       /* 스크랩북: 펀치 홀 줄이고 페이지 영역 확대 */
       .scrap-holes { width: 22px; padding: 30px 0; }
       .scrap-hole { width: 11px; height: 11px; }
-      .scrap-page { inset: 30px 14px 30px 32px; padding: 170px 6px 50px 6px; gap: 14px 12px; grid-template-columns: 1fr !important; }
+      .scrap-page { inset: 30px 14px 70px 32px; padding: 170px 6px 30px 6px; gap: 14px 12px; grid-template-columns: 1fr !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch; }
+      /* 모바일: 페이지 nav를 우측 상단 고정 */
+      .scrap-page-nav { top: 78px; bottom: auto; right: 14px; gap: 6px; }
+      .scrap-nav-btn { width: 28px; height: 28px; font-size: 11px; }
+      .scrap-page-indicator { font-size: 11px; min-width: 32px; }
       .scrap-entry { padding: 10px 12px 12px; }
       .scrap-entry-photo { aspect-ratio: 16 / 9; }
       .scrap-entry-name { font-size: 19px; padding-bottom: 4px; margin-bottom: 5px; }
       .scrap-entry-message { font-size: 13px; line-height: 1.55; -webkit-line-clamp: 4; }
       .scrap-entry-date { font-size: 10px; margin-top: 6px; }
       .scrap-entry::before { width: 50px; height: 16px; top: -10px; }
-      /* 페이지 표시기를 우측 상단으로 이동 → 하단 샘플 배지와 충돌 방지 */
-      .scrap-page-indicator { top: 78px; right: 14px; bottom: auto; font-size: 11px; }
 
       /* Tweaks 패널 */
       #tweaks-panel { width: calc(100vw - 24px); right: 12px; bottom: 12px; max-height: 70vh; }
@@ -294,6 +301,7 @@
   let seenTs = new Set();
   let scrapPage = 0;
   let scrapPageTimer = null;
+  let scrapPauseTimer = null;
 
   STYLES.forEach(s => {
     const b = document.createElement('button');
@@ -327,8 +335,9 @@
     const topPad = isMobile ? 210 : 210;
     const bottomPad = isMobile ? 50 : 30;
     const sidePad = isMobile ? 14 : 30;
-    const cols = vw >= 1400 ? 6 : vw >= 1000 ? 5 : vw >= 720 ? 4 : vw >= 420 ? 2 : 2;
-    const rows = vh >= 900 ? 4 : vh >= 650 ? 3 : isMobile ? 4 : 2;
+    const cols = vw >= 1400 ? 6 : vw >= 1000 ? 5 : vw >= 720 ? 4 : 2;
+    // 모바일: 카드 높이가 셀보다 커서 겹치지 않도록 rows를 보수적으로 산정
+    const rows = isMobile ? (vh >= 900 ? 3 : 2) : (vh >= 900 ? 4 : vh >= 650 ? 3 : 2);
     const list = messages.slice(0, cols * rows);
     const cellW = (vw - sidePad * 2) / cols;
     const cellH = (vh - topPad - bottomPad) / rows;
@@ -396,7 +405,8 @@
     const bottomPad = isMobile ? 50 : 30;
     const sidePad = isMobile ? 14 : 30;
     const cols = vw >= 1400 ? 5 : vw >= 1000 ? 4 : vw >= 720 ? 3 : 2;
-    const rows = vh >= 900 ? 3 : isMobile ? 3 : 2;
+    // 모바일: 사진 있는 카드가 셀 높이를 넘지 않도록 rows=2
+    const rows = isMobile ? (vh >= 900 ? 3 : 2) : (vh >= 900 ? 3 : 2);
     const list = messages.slice(0, cols * rows);
     const cellW = (vw - sidePad * 2) / cols;
     const cellH = (vh - topPad - bottomPad) / rows;
@@ -439,8 +449,36 @@
       '<div class="scrap-holes">' + Array(6).fill('<div class="scrap-hole"></div>').join('') + '</div>' +
       '<div class="scrap-title">' + esc(window.__TWEAKS__.scrapbook_title) + '</div>' +
       '<div class="scrap-page" id="scrap-page"></div>' +
-      '<div class="scrap-page-indicator">페이지 ' + (scrapPage + 1) + ' / ' + totalPages + '</div>';
+      '<div class="scrap-page-nav">' +
+        '<button class="scrap-nav-btn" id="scrap-prev" aria-label="이전 페이지">◀</button>' +
+        '<span class="scrap-page-indicator">' + (scrapPage + 1) + ' / ' + totalPages + '</span>' +
+        '<button class="scrap-nav-btn" id="scrap-next" aria-label="다음 페이지">▶</button>' +
+      '</div>';
     const pageEl = stage.querySelector('#scrap-page');
+    // 페이지 이동 핸들러 (자동 넘김 일시정지 포함)
+    const pauseAutoTimer = () => {
+      if (scrapPageTimer) { clearInterval(scrapPageTimer); scrapPageTimer = null; }
+      if (scrapPauseTimer) clearTimeout(scrapPauseTimer);
+      scrapPauseTimer = setTimeout(() => { renderScrapbook(lastMessages); }, 30000); // 30초 후 자동 재시작
+    };
+    const goPage = (dir) => {
+      pauseAutoTimer();
+      scrapPage = (scrapPage + dir + totalPages) % totalPages;
+      renderScrapbook(lastMessages);
+    };
+    stage.querySelector('#scrap-prev').onclick = (e) => { e.stopPropagation(); goPage(-1); };
+    stage.querySelector('#scrap-next').onclick = (e) => { e.stopPropagation(); goPage(1); };
+    // 모바일: 좌우 스와이프로 페이지 이동
+    if (isMobile && totalPages > 1) {
+      let touchX = null;
+      pageEl.addEventListener('touchstart', (e) => { touchX = e.touches[0].clientX; }, { passive: true });
+      pageEl.addEventListener('touchend', (e) => {
+        if (touchX === null) return;
+        const dx = e.changedTouches[0].clientX - touchX;
+        touchX = null;
+        if (Math.abs(dx) > 60) goPage(dx < 0 ? 1 : -1);
+      }, { passive: true });
+    }
     list.forEach((msg, i) => {
       const rot = (hash(msg.ts + i) - 0.5) * 5;
       const el = document.createElement('div');
