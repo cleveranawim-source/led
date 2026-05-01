@@ -157,8 +157,10 @@
       .scrap-page-indicator { font-size: 11px; min-width: 32px; }
       .scrap-entry { padding: 10px 12px 12px; }
       .scrap-entry-photo { aspect-ratio: 16 / 9; }
-      .scrap-entry-name { font-size: 19px; padding-bottom: 4px; margin-bottom: 5px; }
-      .scrap-entry-message { font-size: 13px; line-height: 1.55; -webkit-line-clamp: 4; }
+      /* 사진 없을 때 큰 ♡ 영역 → 작은 아이콘으로 */
+      .scrap-entry-photo.no-image { aspect-ratio: auto; height: 36px; font-size: 22px; margin-bottom: 6px; opacity: 0.6; }
+      .scrap-entry-name { font-size: 20px; padding-bottom: 4px; margin-bottom: 6px; }
+      .scrap-entry-message { font-size: 14px; line-height: 1.55; -webkit-line-clamp: 5; }
       .scrap-entry-date { font-size: 10px; margin-top: 6px; }
       .scrap-entry::before { width: 50px; height: 16px; top: -10px; }
 
@@ -440,7 +442,8 @@
   function renderScrapbook(messages) {
     stage.className = 'style-scrapbook';
     const isMobile = window.innerWidth < 720;
-    const perPage = isMobile ? 4 : 9;
+    // 모바일: 한 화면에 카드 2장이 완전히 보이도록 perPage 제한
+    const perPage = isMobile ? 2 : 9;
     const totalPages = Math.max(1, Math.ceil(messages.length / perPage));
     if (scrapPage >= totalPages) scrapPage = 0;
     const start = scrapPage * perPage;
