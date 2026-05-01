@@ -23,13 +23,13 @@
     .topbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; padding: 14px 22px; pointer-events: none; }
     .topbar > * { pointer-events: auto; }
     .style-switcher { display: flex; gap: 6px; background: rgba(255,255,255,0.85); backdrop-filter: blur(10px); border-radius: 999px; padding: 4px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); font-family: 'Gowun Dodum', sans-serif; }
-    .style-switcher button { border: none; background: transparent; padding: 8px 16px; border-radius: 999px; font-size: 14px; color: #555; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+    .style-switcher button { border: none; background: transparent; padding: 8px 16px; border-radius: 999px; font-size: 14px; color: #555; cursor: pointer; transition: all 0.2s; font-family: inherit; white-space: nowrap; }
     .style-switcher button:hover { color: #222; }
     .style-switcher button.active { background: #2b2b2b; color: #fff; }
     .topbar-right { display: flex; gap: 10px; align-items: center; }
-    .counter-pill { background: rgba(255,255,255,0.85); backdrop-filter: blur(10px); border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #333; box-shadow: 0 2px 12px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 8px; font-family: 'Gowun Dodum', sans-serif; }
+    .counter-pill { background: rgba(255,255,255,0.85); backdrop-filter: blur(10px); border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #333; box-shadow: 0 2px 12px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 8px; font-family: 'Gowun Dodum', sans-serif; white-space: nowrap; }
     .counter-pill .count { font-size: 18px; font-weight: 700; color: #e85a8a; font-variant-numeric: tabular-nums; }
-    .icon-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: rgba(255,255,255,0.85); backdrop-filter: blur(10px); box-shadow: 0 2px 12px rgba(0,0,0,0.08); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: transform 0.15s; text-decoration: none; color: inherit; }
+    .icon-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: rgba(255,255,255,0.85); backdrop-filter: blur(10px); box-shadow: 0 2px 12px rgba(0,0,0,0.08); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: transform 0.15s; text-decoration: none; color: inherit; flex-shrink: 0; }
     .icon-btn:hover { transform: scale(1.08); }
 
     /* ===== 관리자 배지 / 삭제 버튼 ===== */
@@ -105,6 +105,71 @@
     .scrap-entry-message { font-size: 14px; line-height: 1.6; color: #3a2a1a; font-family: 'Gowun Batang', serif; word-break: keep-all; overflow-wrap: break-word; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
     .scrap-entry-date { display: block; margin-top: 10px; font-size: 11px; color: #9a7a5a; text-align: right; font-family: 'Gowun Dodum', sans-serif; }
     .scrap-page-indicator { position: absolute; bottom: 20px; right: 80px; font-family: 'Gowun Dodum', sans-serif; font-size: 13px; color: #9a7a5a; letter-spacing: 2px; z-index: 100; }
+
+    /* ===== 모바일 반응형 (≤720px) ===== */
+    @media (max-width: 720px) {
+      /* 상단바를 2단으로: 1행=스타일 스위처, 2행=카운터/관리자/아이콘 */
+      .topbar { flex-direction: column; align-items: center; gap: 8px; padding: 10px 12px; }
+      .style-switcher { padding: 3px; gap: 3px; }
+      .style-switcher button { padding: 7px 12px; font-size: 12.5px; }
+      .topbar-right { gap: 6px; flex-wrap: wrap; justify-content: center; }
+      .counter-pill { padding: 7px 12px; font-size: 12px; }
+      .counter-pill .count { font-size: 15px; }
+      .icon-btn { width: 34px; height: 34px; font-size: 15px; }
+      .admin-clear-btn { padding: 7px 11px; font-size: 11.5px; }
+
+      /* 관리자 / 샘플 배지 */
+      .admin-badge { top: auto; bottom: 60px; font-size: 11px; padding: 5px 12px; }
+      .sample-badge { font-size: 11px; padding: 6px 14px; max-width: 90vw; text-align: center; bottom: 10px; line-height: 1.4; }
+
+      /* 타이틀: 상단바가 2단으로 늘어나서 더 아래로 */
+      .cork-title { font-size: 28px; padding: 8px 22px; top: 130px; letter-spacing: 1px; max-width: 92vw; white-space: normal; text-align: center; line-height: 1.1; }
+      .sky-title { font-size: 24px; letter-spacing: 1.5px; top: 132px; max-width: 92vw; white-space: normal; line-height: 1.15; }
+      .sky-title small { font-size: 11px; letter-spacing: 1.5px; margin-top: 4px; }
+      .scrap-title { font-size: 32px; top: 130px; letter-spacing: 1px; }
+      .scrap-title::before, .scrap-title::after { margin: 0 8px; }
+
+      /* 폴라로이드 */
+      .polaroid { padding: 10px 10px 24px 10px; }
+      .polaroid-name { font-size: 19px; margin-top: 8px; }
+      .polaroid-message { font-size: 13px; }
+      .polaroid.size-sm .polaroid-message { font-size: 13px; -webkit-line-clamp: 3; }
+      .polaroid.size-md .polaroid-message { font-size: 12.5px; -webkit-line-clamp: 4; }
+      .polaroid.size-lg .polaroid-message { font-size: 12px; -webkit-line-clamp: 5; }
+
+      /* 플로팅 카드 */
+      .float-card { padding: 12px 14px; border-radius: 14px; }
+      .float-card-name { font-size: 17px; }
+      .float-card-message { font-size: 13px; line-height: 1.5; -webkit-line-clamp: 5; }
+
+      /* 스크랩북: 펀치 홀 줄이고 페이지 영역 확대 */
+      .scrap-holes { width: 22px; padding: 30px 0; }
+      .scrap-hole { width: 11px; height: 11px; }
+      .scrap-page { inset: 30px 14px 30px 32px; padding: 150px 6px 50px 6px; gap: 14px 12px; grid-template-columns: 1fr !important; }
+      .scrap-entry { padding: 10px 12px 12px; }
+      .scrap-entry-photo { aspect-ratio: 16 / 9; }
+      .scrap-entry-name { font-size: 19px; padding-bottom: 4px; margin-bottom: 5px; }
+      .scrap-entry-message { font-size: 13px; line-height: 1.55; -webkit-line-clamp: 4; }
+      .scrap-entry-date { font-size: 10px; margin-top: 6px; }
+      .scrap-entry::before { width: 50px; height: 16px; top: -10px; }
+      /* 페이지 표시기를 우측 상단으로 이동 → 하단 샘플 배지와 충돌 방지 */
+      .scrap-page-indicator { top: 78px; right: 14px; bottom: auto; font-size: 11px; }
+
+      /* Tweaks 패널 */
+      #tweaks-panel { width: calc(100vw - 24px); right: 12px; bottom: 12px; max-height: 70vh; }
+    }
+
+    /* 매우 좁은 화면(<380px) */
+    @media (max-width: 380px) {
+      .style-switcher button { padding: 6px 9px; font-size: 11px; }
+      .counter-pill { padding: 6px 10px; font-size: 11px; }
+      .counter-pill .count { font-size: 14px; }
+      .admin-clear-btn { padding: 6px 9px; font-size: 10.5px; }
+      .icon-btn { width: 32px; height: 32px; font-size: 14px; }
+      .cork-title { font-size: 24px; padding: 6px 16px; }
+      .sky-title { font-size: 22px; }
+      .scrap-title { font-size: 28px; }
+    }
   </style>
 </head>
 <body>
@@ -258,13 +323,16 @@
     stage.className = 'style-corkboard';
     stage.innerHTML = '<div class="cork-title">' + esc(window.__TWEAKS__.corkboard_title) + '</div>';
     const vw = window.innerWidth, vh = window.innerHeight;
-    const topPad = 210, bottomPad = 30, sidePad = 30;
-    const cols = vw >= 1400 ? 6 : vw >= 1000 ? 5 : vw >= 720 ? 4 : 3;
-    const rows = vh >= 900 ? 4 : vh >= 650 ? 3 : 2;
+    const isMobile = vw < 720;
+    const topPad = isMobile ? 210 : 210;
+    const bottomPad = isMobile ? 50 : 30;
+    const sidePad = isMobile ? 14 : 30;
+    const cols = vw >= 1400 ? 6 : vw >= 1000 ? 5 : vw >= 720 ? 4 : vw >= 420 ? 2 : 2;
+    const rows = vh >= 900 ? 4 : vh >= 650 ? 3 : isMobile ? 4 : 2;
     const list = messages.slice(0, cols * rows);
     const cellW = (vw - sidePad * 2) / cols;
     const cellH = (vh - topPad - bottomPad) / rows;
-    const cardW = Math.min(210, cellW - 24);
+    const cardW = isMobile ? Math.max(130, cellW - 14) : Math.min(210, cellW - 24);
     const positions = [];
     for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) positions.push({ r, c });
     const seed = list.length * 17 + 3;
@@ -323,13 +391,16 @@
       stage.appendChild(p);
     }
     const vw = window.innerWidth, vh = window.innerHeight;
-    const topPad = 170, bottomPad = 30, sidePad = 30;
+    const isMobile = vw < 720;
+    const topPad = isMobile ? 220 : 170;
+    const bottomPad = isMobile ? 50 : 30;
+    const sidePad = isMobile ? 14 : 30;
     const cols = vw >= 1400 ? 5 : vw >= 1000 ? 4 : vw >= 720 ? 3 : 2;
-    const rows = vh >= 900 ? 3 : 2;
+    const rows = vh >= 900 ? 3 : isMobile ? 3 : 2;
     const list = messages.slice(0, cols * rows);
     const cellW = (vw - sidePad * 2) / cols;
     const cellH = (vh - topPad - bottomPad) / rows;
-    const cardW = Math.max(160, Math.min(260, cellW * 0.88));
+    const cardW = isMobile ? Math.max(140, cellW - 8) : Math.max(160, Math.min(260, cellW * 0.88));
     const maxJitter = Math.max(0, (cellW - cardW) / 2 - 6);
     list.forEach((msg, i) => {
       const r = Math.floor(i / cols), c = i % cols;
@@ -358,7 +429,8 @@
 
   function renderScrapbook(messages) {
     stage.className = 'style-scrapbook';
-    const perPage = 9;
+    const isMobile = window.innerWidth < 720;
+    const perPage = isMobile ? 4 : 9;
     const totalPages = Math.max(1, Math.ceil(messages.length / perPage));
     if (scrapPage >= totalPages) scrapPage = 0;
     const start = scrapPage * perPage;
