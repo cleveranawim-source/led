@@ -338,12 +338,20 @@
     const bottomPad = isMobile ? 50 : 30;
     const sidePad = isMobile ? 14 : 30;
     const cols = vw >= 1400 ? 6 : vw >= 1000 ? 5 : vw >= 720 ? 4 : 2;
-    // 모바일: 카드 높이가 셀보다 커서 겹치지 않도록 rows를 보수적으로 산정
-    const rows = isMobile ? (vh >= 900 ? 3 : 2) : (vh >= 900 ? 4 : vh >= 650 ? 3 : 2);
-    const list = messages.slice(0, cols * rows);
     const cellW = (vw - sidePad * 2) / cols;
-    const cellH = (vh - topPad - bottomPad) / rows;
     const cardW = isMobile ? Math.max(130, cellW - 14) : Math.min(210, cellW - 24);
+    // 카드 높이 추정 (사진 1:1 + 이름·메시지 영역) → cardW * 1.55 정도
+    // 셀 높이가 카드 높이의 70% 이상은 되어야 겹침이 자연스러운 정도로 유지됨
+    const estCardH = cardW * 1.55;
+    const minCellH = estCardH * 0.7;
+    const availH = vh - topPad - bottomPad;
+    const maxRowsByH = Math.max(1, Math.floor(availH / minCellH));
+    const baseRows = isMobile
+      ? (vh >= 900 ? 3 : 2)
+      : (vh >= 1000 ? 4 : vh >= 750 ? 3 : 2);
+    const rows = Math.min(baseRows, maxRowsByH);
+    const list = messages.slice(0, cols * rows);
+    const cellH = availH / rows;
     const positions = [];
     for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) positions.push({ r, c });
     const seed = list.length * 17 + 3;
@@ -407,8 +415,15 @@
     const bottomPad = isMobile ? 50 : 30;
     const sidePad = isMobile ? 14 : 30;
     const cols = vw >= 1400 ? 5 : vw >= 1000 ? 4 : vw >= 720 ? 3 : 2;
-    // 모바일: 사진 있는 카드가 셀 높이를 넘지 않도록 rows=2
-    const rows = isMobile ? (vh >= 900 ? 3 : 2) : (vh >= 900 ? 3 : 2);
+    const cellWForSize = (vw - 60) / cols;
+    const cardWEst = isMobile ? Math.max(140, (vw - 28) / cols - 8) : Math.max(160, Math.min(260, cellWForSize * 0.88));
+    // 사진 4:3 + 이름·메시지 = 약 cardW * 1.4 (사진 있을 때)
+    const estCardHSky = cardWEst * 1.4;
+    const minCellHSky = estCardHSky * 0.78;
+    const availHSky = vh - 170 - 30;
+    const maxRowsBySkyH = Math.max(1, Math.floor(availHSky / minCellHSky));
+    const baseRowsSky = isMobile ? (vh >= 900 ? 3 : 2) : (vh >= 1000 ? 3 : vh >= 750 ? 3 : 2);
+    const rows = Math.min(baseRowsSky, maxRowsBySkyH);
     const list = messages.slice(0, cols * rows);
     const cellW = (vw - sidePad * 2) / cols;
     const cellH = (vh - topPad - bottomPad) / rows;
